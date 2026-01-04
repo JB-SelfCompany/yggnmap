@@ -1,0 +1,29 @@
+[Unit]
+Description=YggNmap - Yggdrasil Network Port Scanner Service
+Documentation=https://github.com/JB-SelfCompany/yggnmap
+After=network.target yggdrasil.service
+Wants=yggdrasil.service
+
+[Service]
+Type=simple
+User=yggnmap
+Group=yggnmap
+WorkingDirectory=/opt/yggnmap
+ExecStart=/opt/yggnmap/yggnmap -listen :: -port 8080
+Restart=on-failure
+RestartSec=5s
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/yggnmap
+
+# Logging - output to file
+StandardOutput=append:/var/log/yggnmap/yggnmap.log
+StandardError=append:/var/log/yggnmap/yggnmap.log
+SyslogIdentifier=yggnmap
+
+[Install]
+WantedBy=multi-user.target

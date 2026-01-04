@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YggNmap - Yggdrasil Port Scanner</title>
+    <style>
+        :root {
+            --bg-gradient-start: #667eea;
+            --bg-gradient-end: #764ba2;
+            --container-bg: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --text-muted: #888888;
+            --accent-color: #667eea;
+            --accent-light: #764ba2;
+            --info-bg: #f8f9fa;
+            --border-color: #eee;
+            --button-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --success-color: #28a745;
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient-start: #1a1a2e;
+            --bg-gradient-end: #16213e;
+            --container-bg: #0f3460;
+            --text-primary: #e8e8e8;
+            --text-secondary: #b8b8b8;
+            --text-muted: #888888;
+            --accent-color: #667eea;
+            --accent-light: #764ba2;
+            --info-bg: #1a2332;
+            --border-color: #2a3a52;
+            --button-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --error-bg: #4a1a1a;
+            --error-text: #ff6b6b;
+            --success-color: #51cf66;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            background: var(--container-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            transition: background 0.3s ease;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .controls-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .theme-toggle, .lang-select {
+            background: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover, .lang-select:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .lang-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 30px;
+            background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .info-box {
+            background: var(--info-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .ygg-address {
+            font-family: 'Courier New', monospace;
+            color: var(--accent-color);
+            font-size: 1.1em;
+            word-break: break-all;
+        }
+
+        .about-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--info-bg);
+            border-radius: 10px;
+        }
+
+        .about-section h2 {
+            color: var(--accent-light);
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .about-section p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            min-width: 120px;
+            background: var(--button-bg);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .export-buttons {
+            display: none;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            flex: 0 1 auto;
+            min-width: 100px;
+            font-size: 0.9em;
+            padding: 10px 20px;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--accent-color);
+            font-size: 1.1em;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background: var(--info-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--button-bg);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .results {
+            display: none;
+        }
+
+        .results-header {
+            background: var(--accent-color);
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .results-body {
+            border: 2px solid var(--accent-color);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .port-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .port-item:last-child {
+            border-bottom: none;
+        }
+
+        .port-item:hover {
+            background: var(--info-bg);
+        }
+
+        .port-number {
+            font-weight: bold;
+            color: var(--accent-color);
+            font-size: 1.2em;
+        }
+
+        .port-details {
+            color: var(--text-secondary);
+        }
+
+        .no-ports {
+            padding: 30px;
+            text-align: center;
+            color: var(--success-color);
+            font-size: 1.1em;
+        }
+
+        .error {
+            background: var(--error-bg);
+            color: var(--error-text);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .scan-info {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .ws-status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            margin-left: 10px;
+        }
+
+        .ws-status.connected {
+            background: var(--success-color);
+        }
+
+        .ws-status.connecting {
+            background: #ffa500;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-controls">
+            <div class="controls-group">
+                <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+                    <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+            <div class="controls-group">
+                <select class="lang-select" onchange="changeLanguage(this.value)" id="lang-select">
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                </select>
+                <div class="ws-status" id="ws-status" title="WebSocket Status"></div>
+            </div>
+        </div>
+
+        <h1 id="page-title">YggNmap</h1>
+        <p class="subtitle" id="subtitle">Free Port Scanner for Yggdrasil Network</p>
+
+        <div class="info-box">
+            <div class="info-label" id="your-address-label">We will scan this IPv6 address:</div>
+            <div class="ygg-address" id="ygg-address">Detecting your address...</div>
+        </div>
+
+        <div class="about-section">
+            <h2 id="about-title">About This Service</h2>
+            <p id="about-description">
+                This is a free port scanning service for Yggdrasil Network users. We automatically detect
+                your IPv6 address and scan it for open ports, helping you identify potential security
+                vulnerabilities. No installation required - just click scan!
+            </p>
+            <p>
+                <strong id="quick-scan-info-label">Quick Scan:</strong> <span id="quick-scan-info">Scans 1000 most common ports (30-60 seconds)</span><br>
+                <strong id="full-scan-info-label">Full Scan:</strong> <span id="full-scan-info">Scans all 65,535 ports (5-15 minutes)</span>
+            </p>
+            <p style="font-size: 0.9em;" class="info-label">
+                <span id="supports-info">Supports both 200::/8 (node addresses) and 300::/8 (subnet addresses)</span><br>
+                <span id="rate-limit-info">Rate limits: Quick scan once per 30 seconds, Full scan once per 60 seconds</span>
+            </p>
+        </div>
+
+        <div class="button-group">
+            <button id="quick-scan-btn" onclick="startQuickScan()">Quick Scan</button>
+            <button id="full-scan-btn" onclick="startFullScan()">Full Scan</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div id="loading-text">Scanning ports...</div>
+            <div class="progress-bar-container" id="progress-container">
+                <div class="progress-bar" id="progress-bar">0%</div>
+            </div>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="results" id="results">
+            <div class="results-header">
+                <span id="results-title">Scan Results</span>
+            </div>
+            <div class="results-body" id="results-body"></div>
+            <div class="scan-info" id="scan-info"></div>
+            <div class="button-group export-buttons" id="export-buttons">
+                <button class="export-btn" onclick="exportResults('csv')" id="export-csv-btn">Export CSV</button>
+                <button class="export-btn" onclick="exportResults('json')" id="export-json-btn">Export JSON</button>
+                <button class="export-btn" onclick="exportResults('pdf')" id="export-pdf-btn">Export PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let csrfToken = null;
+        let currentScanResult = null;
+        let ws = null;
+        let currentTheme = 'light';
+        let currentLang = 'en';
+        let translations = {};
+
+        // Theme management
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+            if (currentTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = translations['light_mode'] || 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = translations['dark_mode'] || 'Dark Mode';
+            }
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                currentTheme = savedTheme;
+                document.documentElement.setAttribute('data-theme', currentTheme);
+            }
+            updateThemeButton();
+        }
+
+        // Language management
+        async function changeLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem('language', lang);
+            await loadTranslations(lang);
+            updateUIText();
+        }
+
+        async function loadTranslations(lang) {
+            try {
+                const response = await fetch('/api/translations?lang=' + lang);
+                if (response.ok) {
+                    translations = await response.json();
+                }
+            } catch (error) {
+                console.error('Failed to load translations:', error);
+            }
+        }
+
+        function t(key) {
+            return translations[key] || key;
+        }
+
+        function updateUIText() {
+            document.getElementById('subtitle').textContent = t('subtitle');
+            document.getElementById('your-address-label').textContent = t('your_address');
+            document.getElementById('about-title').textContent = t('about_title');
+            document.getElementById('about-description').textContent = t('about_description');
+            document.getElementById('quick-scan-info-label').textContent = t('quick_scan_info').split(':')[0] + ':';
+            document.getElementById('quick-scan-info').textContent = t('quick_scan_info').split(':').slice(1).join(':');
+            document.getElementById('full-scan-info-label').textContent = t('full_scan_info').split(':')[0] + ':';
+            document.getElementById('full-scan-info').textContent = t('full_scan_info').split(':').slice(1).join(':');
+            document.getElementById('supports-info').textContent = t('supports_info');
+            document.getElementById('rate-limit-info').textContent = t('rate_limit_info');
+            document.getElementById('quick-scan-btn').textContent = t('quick_scan_btn');
+            document.getElementById('full-scan-btn').textContent = t('full_scan_btn');
+            document.getElementById('export-csv-btn').textContent = t('export_csv');
+            document.getElementById('export-json-btn').textContent = t('export_json');
+            document.getElementById('export-pdf-btn').textContent = t('export_pdf');
+            updateThemeButton();
+        }
+
+        // WebSocket management
+        function connectWebSocket() {
+            if (!csrfToken) {
+                console.log('Cannot connect WebSocket: No CSRF token');
+                return;
+            }
+
+            const wsStatus = document.getElementById('ws-status');
+            wsStatus.className = 'ws-status connecting';
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = protocol + '//' + window.location.host + '/api/ws?csrf_token=' + encodeURIComponent(csrfToken);
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = function() {
+                console.log('WebSocket connected');
+                wsStatus.className = 'ws-status connected';
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const update = JSON.parse(event.data);
+                    handleProgressUpdate(update);
+                } catch (error) {
+                    console.error('WebSocket message error:', error);
+                }
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                wsStatus.className = 'ws-status';
+            };
+
+            ws.onclose = function() {
+                console.log('WebSocket disconnected');
+                wsStatus.className = 'ws-status';
+                // Attempt reconnection after 5 seconds
+                setTimeout(connectWebSocket, 5000);
+            };
+        }
+
+        function handleProgressUpdate(update) {
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const loadingText = document.getElementById('loading-text');
+
+            if (update.type === 'progress') {
+                progressContainer.style.display = 'block';
+                progressBar.style.width = update.progress + '%';
+                progressBar.textContent = update.progress + '%';
+                loadingText.textContent = update.message;
+            } else if (update.type === 'port_found') {
+                loadingText.textContent = update.message;
+            }
+        }
+
+        // Initialization
+        window.addEventListener('DOMContentLoaded', async () => {
+            loadTheme();
+
+            // Load saved language
+            const savedLang = localStorage.getItem('language') || 'en';
+            currentLang = savedLang;
+            document.getElementById('lang-select').value = savedLang;
+            await loadTranslations(savedLang);
+            updateUIText();
+
+            try {
+                // Fetch CSRF token
+                const csrfResponse = await fetch('/api/csrf-token');
+                if (!csrfResponse.ok) {
+                    throw new Error('Failed to get CSRF token');
+                }
+                const csrfData = await csrfResponse.json();
+                csrfToken = csrfData.csrf_token;
+                console.log('CSRF token acquired');
+
+                // Connect WebSocket
+                connectWebSocket();
+
+                // Fetch client IP address
+                const response = await fetch('/api/info');
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Failed to load address (HTTP ' + response.status + ')');
+                }
+
+                const data = await response.json();
+
+                if (!data.ygg_address) {
+                    throw new Error('Server did not return an address');
+                }
+
+                document.getElementById('ygg-address').textContent = data.ygg_address;
+                console.log('Successfully loaded address:', data.ygg_address);
+            } catch (error) {
+                console.error('Error during initialization:', error);
+                document.getElementById('ygg-address').textContent = 'Error: ' + error.message;
+                document.getElementById('ygg-address').style.color = '#dc3545';
+                showError(t('error_init').replace('%s', error.message));
+                document.getElementById('quick-scan-btn').disabled = true;
+                document.getElementById('full-scan-btn').disabled = true;
+            }
+        });
+
+        async function startQuickScan() {
+            await performScan('/api/quick-scan', t('scan_results_quick'));
+        }
+
+        async function startFullScan() {
+            await performScan('/api/scan', t('scan_results_full'));
+        }
+
+        async function performScan(endpoint, title) {
+            if (!csrfToken) {
+                showError(t('error_csrf'));
+                return;
+            }
+
+            // Disable buttons
+            document.getElementById('quick-scan-btn').disabled = true;
+            document.getElementById('full-scan-btn').disabled = true;
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('progress-container').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('export-buttons').style.display = 'none';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-Token': csrfToken
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+
+                    if (response.status === 403) {
+                        console.log('CSRF token expired, refreshing...');
+                        const csrfResponse = await fetch('/api/csrf-token');
+                        if (csrfResponse.ok) {
+                            const csrfData = await csrfResponse.json();
+                            csrfToken = csrfData.csrf_token;
+                            throw new Error(t('error_csrf_expired'));
+                        }
+                    }
+
+                    throw new Error(errorText || 'Scan failed');
+                }
+
+                const data = await response.json();
+                currentScanResult = data;
+                displayResults(data, title);
+            } catch (error) {
+                showError(t('error_scan').replace('%s', error.message));
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('progress-container').style.display = 'none';
+                document.getElementById('quick-scan-btn').disabled = false;
+                document.getElementById('full-scan-btn').disabled = false;
+            }
+        }
+
+        function displayResults(data, title) {
+            const resultsDiv = document.getElementById('results');
+            const resultsBody = document.getElementById('results-body');
+            const resultsTitle = document.getElementById('results-title');
+            const scanInfo = document.getElementById('scan-info');
+            const exportButtons = document.getElementById('export-buttons');
+
+            resultsTitle.textContent = title;
+            resultsBody.innerHTML = '';
+
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+
+            if (data.ports && data.ports.length > 0) {
+                data.ports.forEach(function(port) {
+                    const portItem = document.createElement('div');
+                    portItem.className = 'port-item';
+                    portItem.innerHTML = '<div class="port-number">' + t('port') + ' ' + port.port + '/' + port.protocol + '</div>' +
+                        '<div class="port-details">' +
+                        '<strong>' + port.state + '</strong> - ' + (port.service || 'unknown') +
+                        '</div>';
+                    resultsBody.appendChild(portItem);
+                });
+                exportButtons.style.display = 'flex';
+            } else {
+                resultsBody.innerHTML = '<div class="no-ports">' + t('no_ports_found') + '</div>';
+                exportButtons.style.display = 'none';
+            }
+
+            const scanCompletedText = t('scan_completed')
+                .replace('%.2f', data.duration.toFixed(2))
+                .replace('%d', (data.ports ? data.ports.length : 0));
+            scanInfo.textContent = scanCompletedText;
+            resultsDiv.style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        async function exportResults(format) {
+            if (!currentScanResult || !csrfToken) {
+                showError(t('error_export').replace('%s', 'No scan results available'));
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/export/' + format, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify(currentScanResult)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Export failed');
+                }
+
+                // Download file
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+
+                // Extract filename from Content-Disposition header
+                const disposition = response.headers.get('Content-Disposition');
+                let filename = 'yggnmap_export.' + format;
+                if (disposition) {
+                    const matches = /filename=([^;]+)/.exec(disposition);
+                    if (matches && matches[1]) {
+                        filename = matches[1].trim();
+                    }
+                }
+
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                showError(t('error_export').replace('%s', error.message));
+            }
+        }
+    </script>
+</body>
+</html>
