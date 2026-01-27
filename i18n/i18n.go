@@ -84,8 +84,8 @@ func initTranslations() Translations {
 			Russian: "Полное сканирование: Проверяет все 65,535 портов (10-30 минут)",
 		},
 		"supports_info": {
-			English: "Supports both 200::/8 (node addresses) and 300::/8 (subnet addresses)",
-			Russian: "Поддерживает как 200::/8 (адреса узлов), так и 300::/8 (адреса подсетей)",
+			English: "Supports Yggdrasil addresses from 200::/7 range (includes 300::/8 subnet addresses)",
+			Russian: "Поддерживает адреса Yggdrasil из диапазона 200::/7 (включает 300::/8 адреса подсетей)",
 		},
 		"rate_limit_info": {
 			English: "Rate limits: Quick scan once per 30 seconds, Full scan once per 60 seconds, Custom scan once per 45 seconds",
@@ -232,12 +232,22 @@ func initTranslations() Translations {
 
 		// Theme
 		"dark_mode": {
-			English: "Dark Mode",
-			Russian: "Тёмная тема",
+			English: "Dark",
+			Russian: "Тёмная",
 		},
 		"light_mode": {
-			English: "Light Mode",
-			Russian: "Светлая тема",
+			English: "Light",
+			Russian: "Светлая",
+		},
+
+		// Footer
+		"footer_copyright": {
+			English: "JB-SelfCompany",
+			Russian: "JB-SelfCompany",
+		},
+		"footer_github": {
+			English: "GitHub",
+			Russian: "GitHub",
 		},
 	}
 }

@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"yggnmap/server"
+	"github.com/JB-SelfCompany/yggnmap/internal/version"
+	"github.com/JB-SelfCompany/yggnmap/server"
 )
 
 const (
@@ -23,8 +25,14 @@ func main() {
 	listenAddr := flag.String("listen", defaultListenAddr, "IPv6 address to listen on (:: for all interfaces)")
 	nmapPath := flag.String("nmap", "", "Path to nmap binary (default: search in PATH)")
 	help := flag.Bool("help", false, "Show help message")
+	showVersion := flag.Bool("version", false, "Show version information")
 
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Printf("YggNmap version %s\n", version.Version)
+		os.Exit(0)
+	}
 
 	if *help {
 		printHelp()
@@ -34,7 +42,7 @@ func main() {
 	// Create server
 	srv := server.NewServer(*listenAddr, *port, *nmapPath)
 
-	log.Println("YggNmap - Yggdrasil Network Port Scanner Service")
+	log.Printf("YggNmap v%s - Yggdrasil Network Port Scanner Service", version.Version)
 	log.Println("=================================================")
 	log.Printf("Configuration:")
 	log.Printf("  Listen Address: %s", *listenAddr)
@@ -80,7 +88,7 @@ func main() {
 			log.Println("  1. Use the default (listen on all interfaces):")
 			log.Println("     ./yggnmap -port", *port)
 			log.Println()
-			log.Println("  2. Use your Yggdrasil node address (200::/8):")
+			log.Println("  2. Use your Yggdrasil node address (200::/7):")
 			log.Println("     Run: yggdrasilctl getSelf")
 			log.Println("     Then: ./yggnmap -listen <IPv6-address> -port", *port)
 			log.Println()

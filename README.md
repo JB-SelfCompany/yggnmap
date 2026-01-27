@@ -1,12 +1,14 @@
 <div align="center">
 
-# YggNmap
+# 🔍 YggNmap
 
 ### Yggdrasil Network Port Scanner Service
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev/)
 [![Yggdrasil](https://img.shields.io/badge/Yggdrasil-Network-green)](https://yggdrasil-network.github.io/)
+[![Downloads](https://img.shields.io/github/downloads/JB-SelfCompany/yggnmap/total)](https://github.com/JB-SelfCompany/yggnmap/releases)
+[![Visitors](https://visitor-badge.laobi.icu/badge?page_id=JB-SelfCompany.yggnmap)](https://github.com/JB-SelfCompany/yggnmap)
 
 **Zero-installation port scanning for Yggdrasil users**
 
@@ -31,7 +33,7 @@ YggNmap is a free web-based port scanning service designed for the Yggdrasil Net
 |---------|---------|-------------------|
 | **Installation** | None required | Install nmap locally |
 | **Configuration** | Automatic | Manual setup |
-| **Supported Addresses** | 200::/8 + 300::/8 | IPv6 only |
+| **Supported Addresses** | 200::/7 + 300::/8 | IPv6 only |
 | **Real-time Progress** | WebSocket updates | Command line only |
 | **Export Results** | CSV, JSON, PDF | Manual parsing |
 
@@ -99,7 +101,7 @@ YggNmap fully supports both Yggdrasil address types:
 
 | Address Type | Prefix | Example | Use Case |
 |--------------|--------|---------|----------|
-| **Node Addresses** | 200::/8 | `200:1234:5678:9abc:def0::1` | Direct Yggdrasil nodes |
+| **Node Addresses** | 200::/7 | `200:1234:5678:9abc:def0::1` | Direct Yggdrasil nodes |
 | **Subnet Addresses** | 300::/8 | `300:1234:5678:9abc::1` | Devices behind routers |
 
 Both work identically - the service automatically detects and scans either type.
@@ -133,7 +135,7 @@ Both work identically - the service automatically detects and scans either type.
 - Memory leak prevention (auto-cleanup every 5 minutes)
 - Graceful shutdown handling
 - Error message sanitization
-- Yggdrasil address validation (200::/8, 300::/8 only)
+- Yggdrasil address validation (200::/7, 300::/8 only)
 
 **Privacy Protection:**
 - **Client IPs never logged** - Complete privacy preservation
@@ -199,14 +201,10 @@ go build -o yggnmap
 ### Cross-Compile for Multiple Platforms
 
 ```bash
-# Linux/macOS
 ./build.sh
-
-# Windows
-build.bat
 ```
 
-Binaries will be in the `build/` directory.
+Binaries will be in the `dist/` directory.
 
 ### Running the Server
 
@@ -236,7 +234,7 @@ Configuration:
 Starting YggNmap server on :8080
 
 Detected Yggdrasil addresses:
-  - 200:1234:5678:9abc:def0:1122:3344:5566 (node address (200::/8))
+  - 200:1234:5678:9abc:def0:1122:3344:5566 (node address (200::/7))
   - 300:1234:5678:9abc::1 (subnet address (300::/8))
 
 PRIMARY ACCESS URL: http://[200:1234:5678:9abc:def0:1122:3344:5566]:8080/
@@ -583,8 +581,8 @@ yggnmap/
 │   └── validator.go        # Input validation and sanitization
 ├── yggdrasil/
 │   └── detector.go         # Yggdrasil address detection
-├── build/                  # Compiled binaries
-├── build.sh/bat            # Cross-compilation scripts
+├── dist/                   # Compiled binaries
+├── build.sh                # Cross-compilation script
 ├── go.mod                  # Dependencies
 ├── README.md               # This file (English)
 └── README.ru.md            # Russian documentation
@@ -798,6 +796,6 @@ For issues or questions:
 
 **Made with ❤️ for the Yggdrasil Network community**
 
-[⬆ Back to Top](#yggnmap)
+[⬆ Back to Top](#-yggnmap)
 
 </div>

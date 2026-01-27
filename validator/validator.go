@@ -59,7 +59,7 @@ func ValidateIPv6Strict(ipStr string) error {
 }
 
 // ValidateYggdrasilAddress validates that an IPv6 address is a valid Yggdrasil address
-// Yggdrasil uses 200::/8 for node addresses and 300::/8 for subnet prefixes
+// Yggdrasil uses 200::/7 for node addresses and 300::/8 for subnet prefixes
 func ValidateYggdrasilAddress(ipStr string) error {
 	// First perform strict IPv6 validation
 	if err := ValidateIPv6Strict(ipStr); err != nil {
@@ -72,11 +72,11 @@ func ValidateYggdrasilAddress(ipStr string) error {
 		return fmt.Errorf("invalid IP address")
 	}
 
-	// Check if it's a Yggdrasil address (200::/8 or 300::/8)
-	// First byte must be 0x02 (200::/8) or 0x03 (300::/8)
+	// Check if it's a Yggdrasil address (200::/7 or 300::/8)
+	// First byte must be 0x02 (200::/7) or 0x03 (300::/8)
 	firstByte := ip[0]
 	if firstByte != 0x02 && firstByte != 0x03 {
-		return fmt.Errorf("not a Yggdrasil address (must be in 200::/8 or 300::/8 range)")
+		return fmt.Errorf("not a Yggdrasil address (must be in 200::/7 or 300::/8 range)")
 	}
 
 	return nil

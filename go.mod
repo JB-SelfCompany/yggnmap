@@ -1,4 +1,4 @@
-module yggnmap
+module github.com/JB-SelfCompany/yggnmap
 
 go 1.22
 

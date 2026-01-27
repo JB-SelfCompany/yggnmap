@@ -8,7 +8,7 @@ import (
 
 // GetYggdrasilAddresses returns all Yggdrasil IPv6 addresses found on the system
 // Yggdrasil uses two prefixes:
-// - 200::/8 - Individual node addresses (128-bit)
+// - 200::/7 - Individual node addresses (128-bit)
 // - 300::/8 - Routed /64 subnets
 func GetYggdrasilAddresses() ([]string, error) {
 	interfaces, err := net.Interfaces()
@@ -35,7 +35,7 @@ func GetYggdrasilAddresses() ([]string, error) {
 				continue // Not IPv6
 			}
 
-			// Check if address starts with 0x02 (200::/8) or 0x03 (300::/8)
+			// Check if address starts with 0x02 (200::/7) or 0x03 (300::/8)
 			if ip[0] == 0x02 || ip[0] == 0x03 {
 				yggAddresses = append(yggAddresses, ip.String())
 			}
@@ -43,13 +43,13 @@ func GetYggdrasilAddresses() ([]string, error) {
 	}
 
 	if len(yggAddresses) == 0 {
-		return nil, fmt.Errorf("no Yggdrasil addresses found (200::/8 or 300::/8)")
+		return nil, fmt.Errorf("no Yggdrasil addresses found (200::/7 or 300::/8)")
 	}
 
 	return yggAddresses, nil
 }
 
-// GetPrimaryYggdrasilAddress returns the first 200::/8 address found
+// GetPrimaryYggdrasilAddress returns the first 200::/7 address found
 // Falls back to 300::/8 if no 200: address exists
 func GetPrimaryYggdrasilAddress() (string, error) {
 	addresses, err := GetYggdrasilAddresses()
@@ -81,6 +81,6 @@ func IsYggdrasilAddress(ipStr string) bool {
 		return false
 	}
 
-	// Check if first byte is 0x02 (200::/8) or 0x03 (300::/8)
+	// Check if first byte is 0x02 (200::/7) or 0x03 (300::/8)
 	return ip[0] == 0x02 || ip[0] == 0x03
 }

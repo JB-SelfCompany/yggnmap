@@ -1,0 +1,9 @@
+// Package version provides centralized version information for the application.
+// The Version variable can be overridden at build time using ldflags:
+//
+//	go build -ldflags "-X github.com/JB-SelfCompany/yggnmap/internal/version.Version=x.x.x"
+package version
+
+// Version is the application version.
+// This value is set at compile time via ldflags or manually updated here.
+var Version = "1.1.0"

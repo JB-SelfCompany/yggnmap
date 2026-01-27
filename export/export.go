@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/jung-kurt/gofpdf"
-	"yggnmap/scanner"
-	"yggnmap/validator"
+	"github.com/JB-SelfCompany/yggnmap/scanner"
+	"github.com/JB-SelfCompany/yggnmap/validator"
 )
 
 // ExportFormat represents the export format type

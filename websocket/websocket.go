@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"yggnmap/validator"
+	"github.com/JB-SelfCompany/yggnmap/validator"
 )
 
 // ProgressUpdate represents a scan progress update message
